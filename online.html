@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe | Online Multiplayer</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-globe"></i> Online Multiplayer</h1>
+            <div class="player-setup">
+                <div class="player-input">
+                    <label for="online-player-name">Your Name:</label>
+                    <input type="text" id="online-player-name" placeholder="Enter your name" value="Player">
+                </div>
+                <div class="online-actions">
+                    <button id="create-room-btn" class="control-btn">
+                        <i class="fas fa-plus"></i> Create Room
+                    </button>
+                    <div class="join-room">
+                        <input type="text" id="room-id-input" placeholder="Room ID">
+                        <button id="join-room-btn" class="control-btn">
+                            <i class="fas fa-sign-in-alt"></i> Join
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="game-container hidden" id="online-game">
+            <div class="room-info">
+                <p>Room ID: <span id="room-id-display">ABCD</span></p>
+                <p>Share this code with your friend to play together</p>
+            </div>
+
+            <div class="status">
+                <div class="current-player">
+                    <span class="player-symbol x">X</span>
+                    <span class="turn-text" id="online-player-turn">Your Turn</span>
+                </div>
+                <div class="player-status">
+                    <p>You: <span id="current-player-name">Player</span> (<span id="player-symbol">X</span>)</p>
+                    <p>Opponent: <span id="opponent-name">Waiting...</span> (<span id="opponent-symbol">O</span>)</p>
+                </div>
+            </div>
+
+            <div class="board">
+                <div class="cell" data-cell-index="0"></div>
+                <div class="cell" data-cell-index="1"></div>
+                <div class="cell" data-cell-index="2"></div>
+                <div class="cell" data-cell-index="3"></div>
+                <div class="cell" data-cell-index="4"></div>
+                <div class="cell" data-cell-index="5"></div>
+                <div class="cell" data-cell-index="6"></div>
+                <div class="cell" data-cell-index="7"></div>
+                <div class="cell" data-cell-index="8"></div>
+                <div class="winning-line"></div>
+            </div>
+
+            <div class="controls">
+                <button id="leave-room-btn" class="control-btn">
+                    <i class="fas fa-door-open"></i> Leave Room
+                </button>
+                <button id="online-menu-btn" class="control-btn">
+                    <i class="fas fa-home"></i> Main Menu
+                </button>
+            </div>
+        </div>
+
+<div class="waiting-screen" id="waiting-screen">
+    <div class="waiting-content">
+        <i class="fas fa-spinner fa-spin"></i>
+        <h2>Waiting for opponent to join...</h2>
+        <p>Room ID: <span id="waiting-room-id">ABCD</span></p>
+        <button id="cancel-waiting-btn" class="control-btn">
+            <i class="fas fa-times"></i> Cancel
+        </button>
+    </div>
+</div>
+
+        <div class="result-modal" id="result-modal">
+    <div class="result-content">
+        <h2 id="result-message">Game Over!</h2>
+        <div class="result-buttons">
+            <button id="play-again-btn" class="control-btn">
+                <i class="fas fa-play-circle"></i> Play Again
+            </button>
+            <button id="menu-btn-2" class="control-btn">
+                <i class="fas fa-home"></i> Main Menu
+            </button>
+        </div>
+    </div>
+</div>
+    </div>
+
+    <audio id="click-sound" src="sounds/click.mp3"></audio>
+    <audio id="win-sound" src="sounds/win.mp3"></audio>
+    <audio id="draw-sound" src="sounds/draw.mp3"></audio>
+
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="online.js"></script>
+</body>
+</html>

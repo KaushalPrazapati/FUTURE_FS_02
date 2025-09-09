@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe | Local Multiplayer</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-users"></i> Local Multiplayer</h1>
+            <div class="player-names">
+                <div class="player-input">
+                    <label for="player-x">Player X:</label>
+                    <input type="text" id="player-x" placeholder="Player X Name" value="Player X">
+                </div>
+                <div class="player-input">
+                    <label for="player-o">Player O:</label>
+                    <input type="text" id="player-o" placeholder="Player O Name" value="Player O">
+                </div>
+            </div>
+        </header>
+
+        <div class="game-container">
+            <div class="status">
+    <div class="current-player">
+        <span class="player-symbol x">X</span>
+        <span class="turn-text" id="player-turn">Player X's Turn</span>
+    </div>
+    <div class="scores">
+        <div class="score"><span id="player-x-name">Player X</span>: <span id="score-x">0</span></div>
+        <div class="score"><span id="player-o-name">Player O</span>: <span id="score-o">0</span></div>
+        <div class="score">Ties: <span id="score-tie">0</span></div>
+    </div>
+</div>
+
+            <div class="board">
+                <div class="cell" data-cell-index="0"></div>
+                <div class="cell" data-cell-index="1"></div>
+                <div class="cell" data-cell-index="2"></div>
+                <div class="cell" data-cell-index="3"></div>
+                <div class="cell" data-cell-index="4"></div>
+                <div class="cell" data-cell-index="5"></div>
+                <div class="cell" data-cell-index="6"></div>
+                <div class="cell" data-cell-index="7"></div>
+                <div class="cell" data-cell-index="8"></div>
+                <div class="winning-line"></div>
+            </div>
+
+            <div class="controls">
+                <button id="restart-btn" class="control-btn">
+                    <i class="fas fa-redo"></i> Restart Game
+                </button>
+                <button id="menu-btn" class="control-btn">
+                    <i class="fas fa-home"></i> Main Menu
+                </button>
+            </div>
+        </div>
+
+        <div class="result-modal" id="result-modal">
+    <div class="result-content">
+        <h2 id="result-message">Game Over!</h2>
+        <div class="result-buttons">
+            <button id="play-again-btn" class="control-btn">
+                <i class="fas fa-play-circle"></i> Play Again
+            </button>
+            <button id="menu-btn-2" class="control-btn">
+                <i class="fas fa-home"></i> Main Menu
+            </button>
+        </div>
+    </div>
+</div>
+    </div>
+
+    <audio id="click-sound" src="sounds/click.mp3"></audio>
+    <audio id="win-sound" src="sounds/win.mp3"></audio>
+    <audio id="draw-sound" src="sounds/draw.mp3"></audio>
+
+    <script src="script.js"></script>
+</body>
+</html>
