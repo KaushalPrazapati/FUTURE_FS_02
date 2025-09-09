@@ -7,18 +7,62 @@ const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
+
+// ✅ PORT environment variable use karein (Railway automatically provides this)
+const PORT = process.env.PORT || 3000;
+
+// ✅ Updated CORS configuration for your Netlify domain
+const allowedOrigins = [
+  'https://crosszero-game.netlify.app',
+  'https://crosszero-game.netlify.app/',
+  'http://localhost:3000',
+  'http://localhost:8000',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:8000'
+];
+
 const io = socketIo(server, {
   cors: {
-    origin: "*",
-    methods: ["GET", "POST"]
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps, curl requests)
+      if (!origin) return callback(null, true);
+      
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        return callback(null, true);
+      } else {
+        console.log('CORS blocked for origin:', origin);
+        return callback(new Error('Not allowed by CORS'), false);
+      }
+    },
+    methods: ["GET", "POST"],
+    credentials: true
   }
 });
 
 // Enable CORS
-app.use(cors());
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('Not allowed by CORS'), false);
+    }
+  },
+  credentials: true
+}));
 
 // Serve static files from the root directory
 app.use(express.static(path.join(__dirname, '../')));
+
+// ✅ Add health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    message: 'Server is running',
+    timestamp: new Date().toISOString()
+  });
+});
 
 // Route to serve the main page
 app.get('/', (req, res) => {
@@ -46,9 +90,9 @@ const players = new Map();
 
 // Generate a random room ID
 function generateRoomId() {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let result = '';
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 6; i++) {
     result += characters.charAt(Math.floor(Math.random() * characters.length));
   }
   return result;
@@ -72,7 +116,8 @@ io.on('connection', (socket) => {
       board: ['', '', '', '', '', '', '', '', ''],
       currentPlayer: 'X',
       gameActive: false,
-      isWaiting: true
+      isWaiting: true,
+      createdAt: Date.now() // ✅ Add creation timestamp
     });
     
     players.set(socket.id, {
@@ -87,7 +132,7 @@ io.on('connection', (socket) => {
 
   // Join an existing room
   socket.on('joinRoom', (data) => {
-    const roomId = data.roomId;
+    const roomId = data.roomId.toUpperCase(); // ✅ Convert to uppercase
     const playerName = data.playerName || 'Player';
     
     if (!rooms.has(roomId)) {
@@ -96,6 +141,14 @@ io.on('connection', (socket) => {
     }
     
     const room = rooms.get(roomId);
+    
+    // ✅ Clean up old rooms (1 hour old)
+    const now = Date.now();
+    if (now - room.createdAt > 3600000) {
+      rooms.delete(roomId);
+      socket.emit('error', { message: 'Room has expired' });
+      return;
+    }
     
     if (room.players.length >= 2) {
       socket.emit('error', { message: 'Room is full' });
@@ -305,9 +358,19 @@ function checkGameResult(board) {
   return { win: false, draw: false };
 }
 
+// ✅ Clean up old rooms periodically
+setInterval(() => {
+  const now = Date.now();
+  for (const [roomId, room] of rooms.entries()) {
+    if (now - room.createdAt > 3600000) { // 1 hour
+      rooms.delete(roomId);
+      console.log(`Cleaned up old room: ${roomId}`);
+    }
+  }
+}, 300000); // Run every 5 minutes
+
 // Start server
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Open http://localhost:${PORT} in your browser`);
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`✅ Server running on port ${PORT}`);
+  console.log(`✅ Health check: http://localhost:${PORT}/api/health`);
 });
