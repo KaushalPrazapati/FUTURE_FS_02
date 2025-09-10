@@ -1,10 +1,6 @@
 // Online multiplayer functionality
 document.addEventListener('DOMContentLoaded', () => {
-    // ✅ Replace with your Railway URL
-    const RAILWAY_URL = 'https://refreshing-celebration.up.railway.app';
-    
-    // Socket.io connection - Connect to Railway server
-    const socket = io(RAILWAY_URL, {
+    const socket = io('https://tic-tac-toe-y8ex.onrender.com', {
         transports: ['websocket', 'polling'],
         timeout: 10000,
         reconnectionAttempts: 5,
@@ -467,4 +463,5 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Initialize the game
     initGame();
+
 });
