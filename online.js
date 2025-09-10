@@ -58,9 +58,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Initialize the game
     function initGame() {
+        // Clear all cells
         cells.forEach(cell => {
-            cell.addEventListener('click', handleCellClick);
+            cell.textContent = '';
             cell.classList.remove('x', 'o');
+            cell.addEventListener('click', handleCellClick);
         });
         
         if (leaveRoomBtn) leaveRoomBtn.addEventListener('click', leaveRoom);
@@ -76,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Connection status indicators
         socket.on('connect', () => {
-            console.log('✅ Connected to server:', RAILWAY_URL);
+            console.log('✅ Connected to server');
             updateConnectionStatus('connected');
         });
         
@@ -174,13 +176,14 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Show waiting screen
     function showWaitingScreen() {
-        waitingScreen.classList.remove('hidden');
-        onlineGame.classList.add('hidden');
+        if (waitingScreen) waitingScreen.classList.remove('hidden');
+        if (onlineGame) onlineGame.classList.add('hidden');
     }
     
     // Hide waiting screen
     function hideWaitingScreen() {
-        waitingScreen.classList.add('hidden');
+        if (waitingScreen) waitingScreen.classList.add('hidden');
+        if (onlineGame) onlineGame.classList.remove('hidden');
     }
     
     // Cancel waiting
@@ -198,11 +201,11 @@ document.addEventListener('DOMContentLoaded', () => {
             socket.emit('leaveRoom', { roomId });
             roomId = '';
         }
-        onlineGame.classList.add('hidden');
+        if (onlineGame) onlineGame.classList.add('hidden');
         resetGame();
     }
     
-    // Handle cell click
+    // Handle cell click - FIXED VERSION
     function handleCellClick(e) {
         if (!gameActive || currentPlayer !== playerSymbol) return;
         
@@ -220,15 +223,32 @@ document.addEventListener('DOMContentLoaded', () => {
             clickSound.play();
         }
         
+        // ✅ IMMEDIATE UI UPDATE (Instant feedback)
+        cell.textContent = currentPlayer;
+        cell.classList.add(currentPlayer.toLowerCase());
+        board[cellIndex] = currentPlayer;
+        
         // Send move to server
         socket.emit('makeMove', { roomId, cellIndex });
+        
+        // ✅ Temporary disable to prevent double clicks
+        gameActive = false;
+        setTimeout(() => {
+            gameActive = true;
+        }, 300);
     }
     
-    // Make a move
+    // Make a move - FIXED VERSION
     function makeMove(cellIndex, symbol) {
+        // Update board state
         board[cellIndex] = symbol;
-        cells[cellIndex].classList.add(symbol.toLowerCase());
-        cells[cellIndex].textContent = symbol;
+        
+        // Update UI
+        const cell = document.querySelector(`[data-cell-index="${cellIndex}"]`);
+        if (cell) {
+            cell.textContent = symbol;
+            cell.classList.add(symbol.toLowerCase());
+        }
         
         // Check result
         checkResult();
@@ -295,6 +315,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Display winning line
     function displayWinningLine(combo) {
+        if (!winningLine) return;
+        
         const [a, b, c] = combo;
         const cellSize = cells[0].offsetWidth;
         
@@ -385,15 +407,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // Request play again
     function requestPlayAgain() {
         socket.emit('playAgain', { roomId });
-        resultModal.classList.remove('active');
+        if (resultModal) resultModal.classList.remove('active');
     }
     
-    // Reset game board
+    // Reset game board - FIXED VERSION
     function resetGame() {
         board = ['', '', '', '', '', '', '', '', ''];
         gameActive = true;
         currentPlayer = 'X';
         
+        // Clear all cells
         cells.forEach(cell => {
             cell.textContent = '';
             cell.classList.remove('x', 'o');
@@ -407,48 +430,47 @@ document.addEventListener('DOMContentLoaded', () => {
         updateStatus();
     }
     
-    // Socket event handlers
+    // Socket event handlers - FIXED VERSION
     socket.on('roomCreated', (data) => {
         roomId = data.roomId;
         playerSymbol = 'X';
-        playerSymbolDisplay.textContent = 'X';
-        opponentSymbolDisplay.textContent = 'O';
-        roomIdDisplay.textContent = roomId;
-        waitingRoomId.textContent = roomId;
+        if (playerSymbolDisplay) playerSymbolDisplay.textContent = 'X';
+        if (opponentSymbolDisplay) opponentSymbolDisplay.textContent = 'O';
+        if (roomIdDisplay) roomIdDisplay.textContent = roomId;
+        if (waitingRoomId) waitingRoomId.textContent = roomId;
     });
     
     socket.on('roomJoined', (data) => {
         roomId = data.roomId;
         playerSymbol = 'O';
-        playerSymbolDisplay.textContent = 'O';
-        opponentSymbolDisplay.textContent = 'X';
+        if (playerSymbolDisplay) playerSymbolDisplay.textContent = 'O';
+        if (opponentSymbolDisplay) opponentSymbolDisplay.textContent = 'X';
         opponentName = data.opponentName;
-        opponentNameDisplay.textContent = opponentName;
-        roomIdDisplay.textContent = roomId;
+        if (opponentNameDisplay) opponentNameDisplay.textContent = opponentName;
+        if (roomIdDisplay) roomIdDisplay.textContent = roomId;
         
         hideWaitingScreen();
-        onlineGame.classList.remove('hidden');
         gameActive = true;
         updateStatus();
     });
     
     socket.on('playerJoined', (data) => {
         opponentName = data.playerName;
-        opponentNameDisplay.textContent = opponentName;
+        if (opponentNameDisplay) opponentNameDisplay.textContent = opponentName;
         
         hideWaitingScreen();
-        onlineGame.classList.remove('hidden');
         gameActive = true;
         updateStatus();
     });
     
     socket.on('moveMade', (data) => {
+        console.log('Move received from server:', data);
         makeMove(data.cellIndex, data.symbol);
     });
     
     socket.on('playerLeft', () => {
         alert('Your opponent has left the game.');
-        onlineGame.classList.add('hidden');
+        if (onlineGame) onlineGame.classList.add('hidden');
         resetGame();
     });
     
@@ -463,5 +485,4 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Initialize the game
     initGame();
-
 });
