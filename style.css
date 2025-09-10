@@ -348,10 +348,12 @@ body.green .cell {
 
 .cell.x {
     color: #ff6b6b;
+    font-weight: bold;
 }
 
 .cell.o {
     color: #339af0;
+    font-weight: bold;
 }
 
 .cell:hover:not(.x):not(.o) {
@@ -673,4 +675,5 @@ body.green .setting-item select {
     .online-actions {
         align-items: center;
     }
+
 }
