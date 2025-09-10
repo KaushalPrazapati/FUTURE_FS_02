@@ -372,3 +372,8 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Health check: http://localhost:${PORT}/api/health`);
 });
 
+// Additional CORS debugging
+app.use((req, res, next) => {
+  console.log('Incoming request from origin:', req.headers.origin);
+  next();
+});
