@@ -11,7 +11,7 @@ const server = http.createServer(app);
 // ✅ PORT environment variable use karein (Railway automatically provides this)
 const PORT = process.env.PORT || 3000;
 
-// ✅ Updated CORS configuration for your Netlify domain
+// server.js - CORS configuration
 const allowedOrigins = [
   'https://crosszero-game.netlify.app',
   'https://crosszero-game.netlify.app/',
@@ -24,9 +24,7 @@ const allowedOrigins = [
 const io = socketIo(server, {
   cors: {
     origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps, curl requests)
       if (!origin) return callback(null, true);
-      
       if (allowedOrigins.indexOf(origin) !== -1) {
         return callback(null, true);
       } else {
@@ -38,7 +36,6 @@ const io = socketIo(server, {
     credentials: true
   }
 });
-
 // Enable CORS
 app.use(cors({
   origin: function (origin, callback) {
@@ -374,3 +371,4 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Server running on port ${PORT}`);
   console.log(`✅ Health check: http://localhost:${PORT}/api/health`);
 });
+
